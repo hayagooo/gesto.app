@@ -1,6 +1,9 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:colorful_iconify_flutter/icons/logos.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -46,7 +49,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 3;
+  var selectedIndex = 4;
 
   void changePage(int index) {
     setState(() {
@@ -70,6 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 3:
         page = LoginPage(onChangePage: changePage,);
+        break;
+      case 4:
+        page = SignUpPage(onChangePage: changePage,);
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -95,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
                           children: [
-                            if(selectedIndex != 3)
+                            if(selectedIndex != 3 && selectedIndex != 4)
                               TextButton(
                                 style: TextButton.styleFrom(
                                   iconColor: Color.fromARGB(137, 0, 0, 0)
@@ -103,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () { changePage(1); }, 
                                 child: FittedBox(fit: BoxFit.fitWidth, child: Icon(Icons.person_pin),),
                               ),
-                            if(selectedIndex != 3)
+                            if(selectedIndex != 3 && selectedIndex != 4)
                               TextButton(
                                 style: TextButton.styleFrom(
                                   iconColor: Color.fromARGB(137, 0, 0, 0)
@@ -111,13 +117,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () { changePage(2); }, 
                                 child: FittedBox(fit: BoxFit.fitWidth, child: Icon(Icons.code),),
                               ),
-                            if(selectedIndex == 3)
+                            if(selectedIndex == 3 || selectedIndex == 4)
                               TextButton(
                                 style: TextButton.styleFrom(
                                   iconColor: Color.fromARGB(137, 0, 0, 0)
                                 ),
-                                onPressed: () { changePage(2); }, 
-                                child: FittedBox(fit: BoxFit.fitWidth, child: Icon(Icons.code),),
+                                onPressed: () { print('Login google'); }, 
+                                child: FittedBox(fit: BoxFit.fitWidth, child: Iconify(Logos.google_icon),),
                               ),
                             Expanded(
                               child: ElevatedButtonTheme(
@@ -142,8 +148,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ]
                                 ),
                                 child: ElevatedButton(
-                                  onPressed: () { changePage(3); }, 
-                                  child: Text('Login', style: TextStyle(color: Color(0xFFFFFFFF)))),
+                                  onPressed: () { 
+                                    if(selectedIndex != 3) { changePage(3); }
+                                    else {
+                                      print('login email password');
+                                    }
+                                    
+                                  }, 
+                                  child: Text(selectedIndex != 4 ? 'Sign In' : 'Sign Up', style: TextStyle(color: Color(0xFFFFFFFF)))),
                               ),
                               )
                             )
@@ -152,7 +164,25 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   )
-                )
+                ),
+              if(selectedIndex == 3)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    iconColor: Color.fromARGB(137, 0, 0, 0)
+                  ),
+                  onPressed: () { changePage(4); }, 
+                  child: FittedBox(fit: BoxFit.fitWidth, child: Text('Sign Up')),
+                ),
+              if(selectedIndex == 4)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    iconColor: Color.fromARGB(137, 0, 0, 0)
+                  ),
+                  onPressed: () { changePage(3); }, 
+                  child: FittedBox(fit: BoxFit.fitWidth, child: Text('Sign In')),
+                ),
+              if(selectedIndex == 3 || selectedIndex == 4)
+                SizedBox(height: 20.0,)
               ],
             ),
           ),
@@ -218,6 +248,122 @@ class DevPage extends StatelessWidget {
   }
 }
 
+class SignUpPage extends StatefulWidget {
+  final Function(int) onChangePage;
+  SignUpPage({Key? key, required this.onChangePage}): super(key: key);
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  TextEditingController dateInput = TextEditingController();
+  String? selectedCountry;
+  final List<String> countries = ['Indonesia', 'Japan', 'Malaysia', 'Singapore', 'Thailand']; 
+  @override
+  void initState() {
+    dateInput.text = "";
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(children: [
+            Image( image: AssetImage('assets/logo.png'), width: 80,),
+            Text('Gesto', style: TextStyle(color: Color(0xFF1549FF), fontSize: 32, fontWeight: FontWeight.bold),)
+          ]),
+          SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(child: Text('Back'), onPressed: () {
+              widget.onChangePage(0);
+            },),
+          ),
+          SizedBox(height: 20,),
+          Text('Signup And Start Communicating', style: TextStyle(color: Color(0xFF1549FF), fontSize: 32, fontWeight: FontWeight.bold),),
+          Text('Development : Flutter, Firebase, Golang (Google Banget)'),
+          SizedBox(height: 10,),
+          TextFormField(
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Name',
+            ),
+          ),
+          SizedBox(height: 10,),
+          TextFormField(
+            controller: dateInput,
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: () async {
+                  DateTime? pickedDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1945), lastDate: DateTime(2101));
+                  if(pickedDate != null) {
+                    print(pickedDate);
+                    String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                    print(formattedDate);
+                    setState(() {
+                      dateInput.text = formattedDate;
+                    });
+                  } else { print('Date must selected first'); }
+                },
+              ),
+              border: UnderlineInputBorder(),
+              labelText: 'Birthday',
+            ),
+            readOnly: true,
+          ),
+          SizedBox(height: 10,),
+          DropdownButtonFormField(
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Country',
+            ),
+            value: selectedCountry,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedCountry = newValue;
+              });
+            },
+            items: countries.map((e) => DropdownMenuItem(value: e, child: Text(e),)).toList(),
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Username',
+            ),
+          ),
+          SizedBox(height: 10,),
+          TextFormField(
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Username',
+            ),
+          ),
+          SizedBox(height: 10,),
+          TextFormField(
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Email',
+            ),
+          ),
+          SizedBox(height: 10,),
+          TextFormField(
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Password',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class LoginPage extends StatefulWidget {
   final Function(int) onChangePage;

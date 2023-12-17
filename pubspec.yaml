@@ -17,6 +17,7 @@ dependencies:
   provider: ^6.0.0
   url_launcher: ^6.2.2
   iconify_flutter: ^0.0.5
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
