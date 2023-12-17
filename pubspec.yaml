@@ -1,0 +1,83 @@
+name: gestoapp
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_native_splash: ^2.3.8
+  english_words: ^4.0.0
+  cupertino_icons: ^1.0.2
+  provider: ^6.0.0
+  url_launcher: ^6.2.2
+  iconify_flutter: ^0.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: fonts/Montserrat-Thin.ttf
+          weight: 100
+        - asset: fonts/Montserrat-ThinItalic.ttf
+          style: italic
+          weight: 100
+        - asset: fonts/Montserrat-ExtraLight.ttf
+          weight: 200
+        - asset: fonts/Montserrat-ExtraLightItalic.ttf
+          style: italic
+          weight: 200
+        - asset: fonts/Montserrat-Light.ttf
+          weight: 300
+        - asset: fonts/Montserrat-LightItalic.ttf
+          style: italic
+          weight: 300
+        - asset: fonts/Montserrat-Regular.ttf
+          weight: 400
+        - asset: fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: fonts/Montserrat-MediumItalic.ttf
+          style: italic
+          weight: 500
+        - asset: fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: fonts/Montserrat-SemiBoldItalic.ttf
+          style: italic
+          weight: 600
+        - asset: fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: fonts/Montserrat-BoldItalic.ttf
+          style: italic
+          weight: 700
+        - asset: fonts/Montserrat-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/Montserrat-ExtraBoldItalic.ttf
+          style: italic
+          weight: 800
+        - asset: fonts/Montserrat-Black.ttf
+          weight: 900
+        - asset: fonts/Montserrat-BlackItalic.ttf
+          style: italic
+          weight: 900
+    - family: FiraSans
+      fonts:
+        - asset: fonts/FiraSans-Regular.ttf
+        - asset: fonts/FiraSans-Bold.ttf
+        - asset: fonts/FiraSans-Italic.ttf
+        - asset: fonts/FiraSans-SemiBold.ttf
+  assets:
+    - assets/logo.png
+    - assets/illustration.png
+    - assets/login.png
