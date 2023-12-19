@@ -3,9 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:colorful_iconify_flutter/icons/logos.dart';
+import 'package:colorful_iconify_flutter/icons/vscode_icons.dart';
+import 'package:iconify_flutter/icons/bxs.dart';
+import 'package:iconify_flutter/icons/icon_park_solid.dart';
+import 'package:iconify_flutter/icons/fa6_brands.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
+import 'app.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
   runApp(MyApp());
 }
 
@@ -43,6 +57,36 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
+class UserData {
+  String name;
+  String birthday;
+  String country;
+  String username;
+  String email;
+  String password;
+
+  UserData({
+    required this.name,
+    required this.birthday,
+    required this.country,
+    required this.username,
+    required this.email,
+    required this.password,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'birthday': birthday,
+      'country': country,
+      'username': username,
+      'email': email,
+      'password': password,
+    };
+  }
+}
+
+
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -51,11 +95,83 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 4;
 
+  UserData userData = UserData(name:'', birthday: '', country: '', email: '', password: '', username: '');
+  void onUserDataChanged(UserData newUserData) {
+    setState(() {
+      userData = newUserData;
+    });
+  }
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: '772924726267-vjuirtpc1u1kkovbbaefbsiq56lnhniu.apps.googleusercontent.com'
+  );
+
+  Future<UserCredential> signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken
+    );
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  void onSignUpSubmit(UserData userData) {
+    registerUser(userData.email, userData.password, userData);
+  }
+
+  Future<String?> registerUser(String email, String password, UserData userData) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      String uid = userCredential.user!.uid;
+      await FirebaseDatabase.instance.ref('users/$uid').set(userData.toJson());
+      return 'Success';
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        return 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        return 'The account already exists for that email.';
+      }
+      return 'An error occurred. Please try again.';
+    } catch (e) {
+      return 'An unknown error occurred.';
+    }
+  }
+
+  void attemptRegistration() async {
+  String? errorMessage = await registerUser(userData.email, userData.password, userData);
+    if (errorMessage != null) {
+      _showAlertDialog('Error', errorMessage, context);
+    } else {
+      _showAlertDialog('Success', 'Resgistration Successfully', context);
+    }
+  }
+
+  void _showAlertDialog(String title, String message, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void changePage(int index) {
     setState(() {
       selectedIndex = index;
     });
-  } 
+  }
 
   @override
 
@@ -75,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = LoginPage(onChangePage: changePage,);
         break;
       case 4:
-        page = SignUpPage(onChangePage: changePage,);
+        page = SignUpPage(onChangePage: changePage, onUserDataChanged: onUserDataChanged,);
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -97,6 +213,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Card(
+                      color: Color(0xFFFFFFFF),
+                      elevation: 0.0,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -122,7 +240,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 style: TextButton.styleFrom(
                                   iconColor: Color.fromARGB(137, 0, 0, 0)
                                 ),
-                                onPressed: () { print('Login google'); }, 
+                                onPressed: () async { 
+                                  try {
+                                    await signInWithGoogle();
+                                  } catch(e) {
+                                    print(e);
+                                  }
+                                 }, 
                                 child: FittedBox(fit: BoxFit.fitWidth, child: Iconify(Logos.google_icon),),
                               ),
                             Expanded(
@@ -149,11 +273,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                                 child: ElevatedButton(
                                   onPressed: () { 
-                                    if(selectedIndex != 3) { changePage(3); }
-                                    else {
+                                    if(selectedIndex != 3 && selectedIndex != 4) { changePage(3); }
+                                    else if(selectedIndex == 3) {
                                       print('login email password');
+                                    } 
+                                    else if(selectedIndex == 4) {
+                                      print("User Data: ${userData.name}, ${userData.email}, ...");
+                                      attemptRegistration();
                                     }
-                                    
                                   }, 
                                   child: Text(selectedIndex != 4 ? 'Sign In' : 'Sign Up', style: TextStyle(color: Color(0xFFFFFFFF)))),
                               ),
@@ -192,30 +319,102 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   final Function(int) onChangePage;
   AboutPage({Key? key, required this.onChangePage}): super(key: key);
+
+  @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  List<dynamic> teams = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future <void> fetchData() async {
+    final dbRef = FirebaseDatabase.instance.ref();
+    dbRef.child("data/teams").get().then((snapshot) {
+      if(snapshot.exists) {
+        setState(() {
+          teams = snapshot.value as List<dynamic>;
+        });
+      } else {
+        print('No data available');
+      }
+    }).catchError((err) {
+      print('Failed to fetch data: $err');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Image(
-          image: AssetImage('assets/logo.png'),
-          width: 80,
-        ),
-        SizedBox(height: 20),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        children: [
+          Image(
+            image: AssetImage('assets/logo.png'),
+            width: 80,
+          ),
+          SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
             child: ElevatedButton(child: Text('Back'), onPressed: () {
-              onChangePage(0);
+              widget.onChangePage(0);
             },),
           ),
-        ),
-        SizedBox(height: 20,),
-        Text('About Me : Hayago Team')
-      ],
+          SizedBox(height: 20,),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(alignment: Alignment.centerLeft, child: Text('Gesto', style: TextStyle(color: Color(0xFF1549FF), fontSize: 32, fontWeight: FontWeight.bold))),
+              Image(image: AssetImage('assets/about.png')),
+              SizedBox(height: 20),
+              Text( "Welcome to an innovative journey where technology meets empathy - introducing our latest endeavor, the 'Gesto' Project. At the heart of Gesto lies a profound commitment to enhancing the lives of individuals with disabilities, specifically those who face challenges in verbal communication.\n\nOur mission with Gesto is to revolutionize the way people with speech and mobility impairments interact with the world around them. We've developed a groundbreaking device that utilizes advanced gesture recognition technology to translate sign language into spoken words. This technology not only bridges the communication gap but also empowers individuals to express themselves freely and effortlessly.",
+                style: TextStyle(
+                  fontSize: 16, // Adjust the font size for readability
+                ),
+              ),
+              SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: Image(image: AssetImage('assets/hand.jpg'), width: MediaQuery.of(context).size.width * 0.95)),
+              Text( "\nIn a world where inclusion is key, Gesto stands as a beacon of hope, offering a new avenue for seamless and inclusive communication. Our dedicated team has worked tirelessly to ensure that this tool is not just functional but also intuitive and user-friendly, catering to the unique needs of its users.\n\nJoin us as we unveil Gesto – a step towards a more inclusive and understanding world where every voice, no matter how it's expressed, is heard loud and clear.",
+                style: TextStyle(
+                  fontSize: 16, // Adjust the font size for readability
+                ),
+              ),
+              SizedBox(height: 40,),
+              Align(alignment: Alignment.centerLeft, child: Text('Hayago Team', style: TextStyle(color: Color(0xFF1549FF), fontSize: 32, fontWeight: FontWeight.bold))),
+              for (var teamMember in teams)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image(image: AssetImage('assets/${teamMember['image']}'), width: MediaQuery.of(context).size.width * 0.4,),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                        Text(teamMember['name'], style: TextStyle(color: Color(0xFF1549FF), fontSize: 28.0, fontWeight: FontWeight.bold)),
+                        Text(teamMember['role'], style: TextStyle(color: Color.fromARGB(127, 0, 0, 0), fontSize: 16.0, fontWeight: FontWeight.w400)),
+                      ]),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 }
@@ -225,32 +424,106 @@ class DevPage extends StatelessWidget {
   DevPage({Key? key, required this.onChangePage}): super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Image(
-          image: AssetImage('assets/logo.png'),
-          width: 80,
-        ),
-        SizedBox(height: 20),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        children: [
+          Image(
+            image: AssetImage('assets/logo.png'),
+            width: 80,
+          ),
+          SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
             child: ElevatedButton(child: Text('Back'), onPressed: () {
               onChangePage(0);
             },),
           ),
-        ),
-        SizedBox(height: 20,),
-        Text('Development : Flutter, Firebase, Golang (Google Banget)')
-      ],
+          SizedBox(height: 20,),
+          Align(alignment: Alignment.centerLeft, child: Text('Software Development', style: TextStyle(color: Color(0xFF1549FF), fontSize: 28.0, fontWeight: FontWeight.bold),)),
+          SizedBox(height: 10,),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Iconify(VscodeIcons.file_type_flutter, size: 48.0,),
+                  Text('Flutter', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('App Development', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+              Column(
+                children: [
+                  Iconify(Fa6Brands.golang, size: 48.0,),
+                  Text('Golang', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Web Server', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+              Column(
+                children: [
+                  Iconify(VscodeIcons.file_type_firebase, size: 48.0,),
+                  Text('Firebase', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Cloud Database', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+            ],),
+          SizedBox(height: 20,),
+          Align(alignment: Alignment.centerLeft, child: Text('Designed Using', style: TextStyle(color: Color(0xFF1549FF), fontSize: 28.0, fontWeight: FontWeight.bold),)),
+          SizedBox(height: 10,),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Iconify(IconParkSolid.adobe_illustrate, size: 48.0,),
+                  Text('Illustrator', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Graphic Design', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+              Column(
+                children: [
+                  Iconify(Logos.figma, size: 48.0,),
+                  Text('Figma', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Ui Ux Design', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+              Column(
+                children: [
+                  Iconify(IconParkSolid.adobe_photoshop, size: 48.0,),
+                  Text('Photoshop', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Image Editing', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+            ],),
+          SizedBox(height: 20,),
+          Align(alignment: Alignment.centerLeft, child: Text('IoT Tools', style: TextStyle(color: Color(0xFF1549FF), fontSize: 28.0, fontWeight: FontWeight.bold),)),
+          SizedBox(height: 10,),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Iconify(Bxs.microchip, size: 48.0,),
+                  Text('ESP32', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Wifi Module', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+              Column(
+                children: [
+                  Iconify(VscodeIcons.file_type_arduino, size: 48.0,),
+                  Text('Arduino IDE', style: TextStyle(color: Color.fromARGB(255, 28, 28, 28), fontSize: 18.0, fontWeight: FontWeight.w600)),
+                  Text('Microchip Editor', style: TextStyle(color: Color.fromARGB(154, 28, 28, 28), fontSize: 12.0, fontWeight: FontWeight.normal)),
+                ],
+              ),
+            ],),
+          
+        ],
+      ),
     );
   }
 }
 
 class SignUpPage extends StatefulWidget {
   final Function(int) onChangePage;
-  SignUpPage({Key? key, required this.onChangePage}): super(key: key);
+  final Function(UserData) onUserDataChanged;
+  SignUpPage({Key? key, required this.onChangePage, required this.onUserDataChanged}): super(key: key);
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -258,12 +531,31 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   TextEditingController dateInput = TextEditingController();
+  TextEditingController nameInput = TextEditingController();
+  TextEditingController usernameInput = TextEditingController();
+  TextEditingController emailInput = TextEditingController();
+  TextEditingController passwordInput = TextEditingController();
   String? selectedCountry;
   final List<String> countries = ['Indonesia', 'Japan', 'Malaysia', 'Singapore', 'Thailand']; 
   @override
   void initState() {
-    dateInput.text = "";
     super.initState();
+    nameInput.text = "";
+    dateInput.text = "";
+    usernameInput.text = "";
+    emailInput.text = "";
+    passwordInput.text = "";
+    selectedCountry = 'Indonesia';
+    nameInput.addListener(() => sendUserData());
+    dateInput.addListener(() => sendUserData());
+    usernameInput.addListener(() => sendUserData());
+    emailInput.addListener(() => sendUserData());
+    passwordInput.addListener(() => sendUserData());
+  }
+
+  void sendUserData() {
+    UserData userData = UserData(name: nameInput.text, birthday: dateInput.text, country: selectedCountry ?? "", username: usernameInput.text, email: emailInput.text, password: passwordInput.text);
+    widget.onUserDataChanged(userData);
   }
 
   @override
@@ -290,6 +582,7 @@ class _SignUpPageState extends State<SignUpPage> {
           Text('Development : Flutter, Firebase, Golang (Google Banget)'),
           SizedBox(height: 10,),
           TextFormField(
+            controller: nameInput,
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
               labelText: 'Name',
@@ -328,11 +621,14 @@ class _SignUpPageState extends State<SignUpPage> {
             onChanged: (String? newValue) {
               setState(() {
                 selectedCountry = newValue;
+                sendUserData();
               });
             },
             items: countries.map((e) => DropdownMenuItem(value: e, child: Text(e),)).toList(),
           ),
+          SizedBox(height: 10,),
           TextFormField(
+            controller: usernameInput,
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
               labelText: 'Username',
@@ -340,13 +636,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           SizedBox(height: 10,),
           TextFormField(
-            decoration: InputDecoration(
-              border: UnderlineInputBorder(),
-              labelText: 'Username',
-            ),
-          ),
-          SizedBox(height: 10,),
-          TextFormField(
+            controller: emailInput,
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
               labelText: 'Email',
@@ -354,6 +644,8 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           SizedBox(height: 10,),
           TextFormField(
+            controller: passwordInput,
+            obscureText: true,
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
               labelText: 'Password',
@@ -362,6 +654,16 @@ class _SignUpPageState extends State<SignUpPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    nameInput.dispose();
+    dateInput.dispose();
+    usernameInput.dispose();
+    emailInput.dispose();
+    passwordInput.dispose();
+    super.dispose();
   }
 }
 
@@ -508,34 +810,6 @@ class FirstPage extends StatelessWidget {
           ),
         ),
       ]
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(
-          pair.asLowerCase, 
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",),
-      ),
     );
   }
 }

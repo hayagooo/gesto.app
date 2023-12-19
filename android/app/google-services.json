@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "772924726267",
+    "firebase_url": "https://gesto-d6223-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "gesto-d6223",
+    "storage_bucket": "gesto-d6223.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772924726267:android:a2e284761e9313d0bec95e",
+        "android_client_info": {
+          "package_name": "com.example.gestoapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3Qi19ElpoK3aab1m2XR2Yl2Vv6C1OXe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

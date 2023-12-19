@@ -18,6 +18,10 @@ dependencies:
   url_launcher: ^6.2.2
   iconify_flutter: ^0.0.5
   intl: ^0.19.0
+  firebase_core: ^2.24.2
+  firebase_database: ^10.3.8
+  firebase_auth: ^4.15.3
+  google_sign_in: '^6.2.1'
 
 dev_dependencies:
   flutter_test:
@@ -82,3 +86,9 @@ flutter:
     - assets/logo.png
     - assets/illustration.png
     - assets/login.png
+    - assets/hand.jpg
+    - assets/about.png
+    - assets/ninno.png
+    - assets/sunu.png
+    - assets/callista.png
+    - assets/kenzi.png
