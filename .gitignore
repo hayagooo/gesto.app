@@ -41,3 +41,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/sound_convertion/gesto-d6223-firebase-adminsdk-9c3k3-97f633b21d.json
