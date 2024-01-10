@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app.dart';
 import 'home.dart';
+import 'smart_gesture.dart';
 
 class RouteGeneator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -10,6 +11,8 @@ class RouteGeneator {
         return MaterialPageRoute(builder: (_) => MyHomePage());
       case '/app':
         return MaterialPageRoute(builder: (_) => AppPage());
+      case '/smart_gestures':
+        return MaterialPageRoute(builder: (_) => SmartGesturePage());
       default:
         return _errorRoute();
     }

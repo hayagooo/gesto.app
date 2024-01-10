@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Montserrat',
         scaffoldBackgroundColor: Color.fromARGB(255, 244, 244, 244),
       ),
-      initialRoute: '/app',
+      initialRoute: '/smart_gestures',
       onGenerateRoute: RouteGeneator.generateRoute,
     );
   }

@@ -9,29 +9,58 @@ class AppPage extends StatefulWidget {
 
 class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  var selectedIndex = 0;
+  
+  void changePage(int index) {
+    setState(() { selectedIndex = index; });
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if(!_tabController.indexIsChanging) onTabSelected();
+    });
+  }
+
+  void onTabSelected() {
+    changePage(_tabController.index);
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(onTabSelected);
     _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget page;
+    String title;
+    String avatarImage = 'assets/avatar.png';
+    switch (selectedIndex) {
+      case 0:
+        title =  'Selamat Datang \nUser';
+        page = DashboardPage();
+        break;
+      case 1:
+        title = 'Community';
+        page = CommunityPage(navLabel: 'Community');
+        break;
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');
+    }
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         body: SingleChildScrollView(
           child: Column(
             children: [
+              NavBar(title: title, avatarImage: avatarImage),
               Container(
-                child: DashboardPage(),
+                child: page
               ),
             ],
           ),
@@ -41,7 +70,7 @@ class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
           child: TabBar(
             controller: _tabController,
             tabs: [
-              Tab(icon: Icon(Icons.dashboard), text: 'Dashboard'),
+              Tab(icon: Icon(Icons.dashboard), text: 'Dashboard',),
               Tab(icon: Icon(Icons.people), text: 'Community'),
               Tab(icon: Icon(Icons.person), text: 'Friend'),
             ],
@@ -53,7 +82,7 @@ class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
 }
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  const DashboardPage({Key? key}): super(key: key);
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
@@ -71,22 +100,7 @@ class _DashboardPageState extends State<DashboardPage> {
       padding: const EdgeInsets.only(top: 24.0, left: 24.0, right: 24.0),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Selamat Datang \nUser.', 
-                style: TextStyle(
-                  fontSize: 24.0,
-                  color: Color.fromARGB(246, 43, 43, 43),
-                  fontWeight: FontWeight.bold
-                )),
-              CircleAvatar(
-                radius: 28.0,
-                backgroundImage: AssetImage('assets/avatar.png'),
-              )
-            ],
-          ),
+          
           SizedBox(height: 24.0),
           Container(
             decoration: BoxDecoration(
@@ -155,10 +169,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     SizedBox(height: 20.0),
                     ElevatedButton(onPressed: () {
-                        print("Button Pressed");
+                        Navigator.of(context).pushNamed('/smart_gestures');
                       }, 
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.black,
+                        backgroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)
                         )
@@ -234,6 +248,73 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
             )
+        ],
+      ),
+    );
+  }
+}
+
+class CommunityPage extends StatefulWidget {
+  final String navLabel;
+  const CommunityPage({Key? key, required this.navLabel}): super(key: key);
+  @override
+  State<CommunityPage> createState() => _CommunityPageState();
+}
+
+class _CommunityPageState extends State<CommunityPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('Community'),
+      ],
+    );
+  }
+}
+
+class NavBar extends StatelessWidget {
+  final String title;
+  final String avatarImage;
+  final String path;
+  const NavBar({Key? key, required this.title, required  this.avatarImage, this.path = ''}): super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0, left: 24.0, right: 24.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+            if(path != '')
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(10, 20),
+                  elevation: 0.0,
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(path);
+                }, 
+                child: Icon(Icons.chevron_left_rounded)
+              ),
+            SizedBox(width: 12),
+            Text(title, 
+              style: TextStyle(
+                fontSize: 24.0,
+                color: Color.fromARGB(246, 43, 43, 43),
+                fontWeight: FontWeight.bold
+              )
+            ),
+          ]),
+          CircleAvatar(
+            radius: 28.0,
+            backgroundImage: AssetImage('assets/avatar.png'),
+          )
         ],
       ),
     );
