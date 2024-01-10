@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:html';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_tts/flutter_tts_web.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/browser_client.dart';
 import 'app.dart';
 
 class SmartGesturePage extends StatefulWidget {
@@ -69,6 +74,25 @@ class _DashboardPageState extends State<DashboardPage> {
     await flutterTts.stop();
   }
 
+  Future genText2Wav(String text, int number) async {
+    print("It is running communicating to golang");
+    var request = http.Request('POST', Uri.parse('http://localhost:8000/speech'));
+    request.headers.addAll({
+      'Content-Type': 'application/json',
+    });
+    request.body = json.encode(<String, dynamic>{
+      'text': text,
+      'number': number
+    });
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
+      throw Exception('Failed to send data');
+    }
+  }
+
   Future <void> fetchGestureData() async {
     final dbRef = FirebaseDatabase.instance.ref("users/vtFaNWJcvPT9H4MYIuHOeruh4fu1/gestures");
     dbRef.get().then((snapshot) {
@@ -95,6 +119,8 @@ class _DashboardPageState extends State<DashboardPage> {
       'number': data['number']?.text,
       'command': data['command']?.text,
     };
+    genText2Wav(data['command']!.text.toString(), int.parse(data['number']!.text));
+
     await dbRef.set(formData).then((value) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +133,6 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     });
   }
-
 
   void deleteSmartGestureData(int index) async {
     final dbRef = FirebaseDatabase.instance.ref("users/vtFaNWJcvPT9H4MYIuHOeruh4fu1/gestures/$index");
