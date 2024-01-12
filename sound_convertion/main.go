@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,8 +25,9 @@ type SpeechRequest struct {
 
 func main() {
 	http.HandleFunc("/speech", speechHandler)
-	log.Println("Server started on :8000")
-	err := http.ListenAndServe(":8000", nil)
+	http.HandleFunc("/read", readWavFile)
+	log.Println("Server started on :8080")
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
@@ -80,6 +82,41 @@ func uploadFile(app *firebase.App, bucketName string, fileName string) {
 	fmt.Printf("Uploaded %v to firebase storage\n", fileName)
 }
 
+func downloadFile(app *firebase.App, bucketName string, fileName string) error {
+	ctx := context.Background()
+	client, err := app.Storage(ctx)
+	if err != nil {
+		return err
+	}
+	bucket, err := client.Bucket(bucketName)
+	if err != nil {
+		return err
+	}
+	rc, err := bucket.Object(fileName).NewReader(ctx)
+	if err != nil {
+		return err
+	}
+	defer rc.Close()
+	outputFile, err := os.Create(fileName)
+	if err != nil {
+		return nil
+	}
+	defer outputFile.Close()
+	if _, err := io.Copy(outputFile, rc); err != nil {
+		return err
+	}
+	return nil
+}
+
+func convertWavToHex(fileName string) (string, error) {
+	fileData, err := os.ReadFile(fileName)
+	if err != nil {
+		return "", err
+	}
+	hexData := hex.EncodeToString(fileData)
+	return hexData, nil
+}
+
 func speechHandler(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 	app := initializeApp()
@@ -122,4 +159,27 @@ func speechHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		uploadFile(app, "gesto-d6223.appspot.com", wavFilePath)
 	}
+}
+
+func readWavFile(w http.ResponseWriter, r *http.Request) {
+	// enableCors(&w)
+	app := initializeApp()
+	queryValue := r.URL.Query()
+	filename := queryValue.Get("filename")
+	if filename == "" {
+		http.Error(w, "Filename is required", http.StatusBadRequest)
+		return
+	}
+	wavFilePath := "audio/" + filename
+	downloadFile(app, "gesto-d6223.appspot.com", wavFilePath)
+	hexData, err := convertWavToHex(wavFilePath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse := map[string]string{
+		"hex": hexData,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jsonResponse)
 }
