@@ -1,0 +1,156 @@
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Blank</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div
+    id="container"
+    class="grid grid-cols-1 pt-5 min-h-screen content-between gap-4 bg-base-100"
+  >
+    <div class="px-12 flex items-center justify-between">
+      <button
+        onclick="setting_modal.showModal()"
+        class="btn flex items-center text-base-content bg-base-100 hover:bg-base-200"
+      >
+        <ion-icon size="large" name="cog-outline"></ion-icon>
+        <span class="text-base-content">Settings</span>
+      </button>
+      <dialog id="setting_modal" class="modal">
+        <div class="modal-box text-base-content">
+          <h3 class="font-bold text-lg">Setting</h3>
+          <p class="py-4 text-sm">
+            Press ESC key or click the button below to close
+          </p>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+              <ion-icon size="large" name="contrast-outline"></ion-icon>
+              <span>Theme View</span>
+            </div>
+            <div>
+              <ion-button
+                (click)="changeTheme($event)"
+                fill="clear"
+                class="btn btn-outline btn-primary"
+                >{{ theme }}</ion-button
+              >
+            </div>
+          </div>
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+      <ion-button
+        fill="clear"
+        href="/login"
+        class="btn flex items-center text-base-content bg-primary text-primary-content hover:bg-base-200"
+      >
+        <ion-icon size="large" name="log-in-outline"></ion-icon>
+        <span class="text-primary-content">Sign In</span>
+      </ion-button>
+    </div>
+    <div class="min-h-[70vh] w-full flex items-center p-12">
+      <div
+        class="grid lg:grid-cols-7 grid-cols-1 item-center gap-3 justify-center w-full"
+      >
+        <div class="col-span-2 space-y-3">
+          <div
+            class="w-full bg-base-200 p-12 rounded-2xl gap-x-4 flex items-center relative overflow-hidden"
+          >
+            <img
+              src="assets/image/profile.png"
+              class="w-12 h-12 rounded-full relative"
+              alt="Rizki Umar Salim"
+            />
+            <div class="relative">
+              <h1 class="font-semibold text-base-content text-xl">
+                Rizki Umar Salim
+              </h1>
+              <p class="text-base-content text-sm">2120600014</p>
+            </div>
+          </div>
+          <div
+            class="w-full bg-base-200 p-8 rounded-2xl gap-x-4 flex items-center relative overflow-hidden"
+          >
+            <img
+              src="assets/image/4.png"
+              class="absolute left-0 w-full h-full top-0 object-cover object-center opacity-40"
+              alt=""
+            />
+            <div
+              class="absolute w-full h-full left-0 top-0 bg-gradient-to-r from-base-200 to-base-200/50"
+            ></div>
+            <div
+              class="text-base-content bg-base-content/10 p-4 rounded-xl font-semibold relative"
+            >
+              Aplikasi Pembantu Pemeriksaan Pasien
+            </div>
+          </div>
+          <div
+            class="w-full bg-base-200 p-8 rounded-2xl gap-x-4 flex items-center relative overflow-hidden"
+          >
+            <img
+              src="assets/image/3.png"
+              class="absolute left-0 w-full h-full top-0 object-cover object-center opacity-40"
+              alt=""
+            />
+            <div
+              class="absolute w-full h-full left-0 top-0 bg-gradient-to-r from-base-200 to-base-200/50"
+            ></div>
+            <div
+              class="text-base-content bg-base-content/10 p-4 rounded-xl font-semibold relative"
+            >
+              Monitoring Realtime Untuk Pasien Gawat Darurat
+            </div>
+          </div>
+        </div>
+        <div class="col-span-5 self-stretch">
+          <div
+            class="w-full bg-base-200 p-16 h-full rounded-2xl gap-x-4 flex items-center relative overflow-hidden"
+          >
+            <img
+              src="assets/image/2.png"
+              class="absolute left-0 w-full h-full top-0 object-cover object-center opacity-40"
+              alt=""
+            />
+            <div
+              class="absolute w-full h-full left-0 top-0 bg-gradient-to-r from-base-200 to-base-200/50"
+            ></div>
+            <div
+              class="absolute left-0 bg-base-100 text-base-content w-full p-8 text-2xl top-0 font-semibold"
+            >
+              Penanganan Makin Cepat, Pasien Makin Sehat
+            </div>
+            <div
+              class="absolute right-0 bottom-0 p-8 w-1/2 bg-base-100/70 rounded-xl"
+            >
+              <h1 class="font-semibold text-base-content text-xl mb-4">
+                Realtime Monitoring dan Kuisinoer Data Pasien Sekarang
+              </h1>
+              <div class="text-right">
+                <ion-button
+                  href="/login"
+                  fill="clear"
+                  shape="round"
+                  class="text-white border-0 btn bg-primary text-primary-content"
+                  >Mulai Sekarang</ion-button
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <footer class="footer footer-center p-4 bg-base-300 text-base-content">
+        <aside>
+          <p>Copyright © 2024 - All right reserved by Rizky Umar Salim</p>
+        </aside>
+      </footer>
+    </div>
+  </div>
+</ion-content>

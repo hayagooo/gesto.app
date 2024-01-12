@@ -1,0 +1,70 @@
+<div class="w-full mt-8 p-8 bg-base-200 rounded-2xl">
+  <div class="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4 items-center">
+    <div class="p-4 rounded-xl bg-gradient-to-tr from-blue-800 to-blue-400 flex items-center gap-x-2 justify-between">
+      <div>
+        <ion-icon class="text-xl" name="person-add-outline"></ion-icon>
+        <p class="text-sm">Data Pasien</p>
+      </div>
+      <div class="pr-3">
+        <h2 class="text-4xl font-bold">12</h2>
+      </div>
+    </div>
+    <div class="p-4 rounded-xl bg-gradient-to-tr from-green-800 to-green-400 flex items-center gap-x-2 justify-between">
+      <div>
+        <ion-icon class="text-xl" name="list-circle-outline"></ion-icon>
+        <p class="text-sm">Pemeriksaan</p>
+      </div>
+      <div class="pr-3">
+        <h2 class="text-4xl font-bold">10</h2>
+      </div>
+    </div>
+    <div class="p-4 rounded-xl bg-gradient-to-tr from-red-800 to-red-400 flex items-center gap-x-2 justify-between">
+      <div>
+        <ion-icon class="text-xl" name="help-circle-outline"></ion-icon>
+        <p class="text-sm">Kuesioner</p>
+      </div>
+      <div class="pr-3">
+        <h2 class="text-4xl font-bold">8</h2>
+      </div>
+    </div>
+    <div class="p-4 rounded-xl bg-gradient-to-tr from-indigo-800 to-indigo-400 flex items-center gap-x-2 justify-between">
+      <div>
+        <ion-icon class="text-xl" name="person-circle-outline"></ion-icon>
+        <p class="text-sm">Pengguna</p>
+      </div>
+      <div class="pr-3">
+        <h2 class="text-4xl font-bold">2</h2>
+      </div>
+    </div>
+  </div>
+  <div class="w-full mt-6 rounded-xl bg-base-100 grid md:grid-cols-2 grid-cols-1 items-center">
+    <div class="p-8 text-base-content bg-base-300 rounded-xl space-y-6">
+      <div>
+        <label class="mb-2" for="name">Nama</label>
+        <input id="name" type="text" placeholder="contoh: Rizki Umar Salim" class="input bg-base-300 input-bordered w-full" />
+      </div>
+      <div>
+        <label class="mb-2" for="birthday">Tanggal Lahir</label>
+        <input type="date" class="input bg-base-300 input-bordered w-full" />
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-x-3">
+          <input type="radio" name="radio-2" class="radio radio-primary" checked id="male"/>
+          <label for="male">Laki laki</label>
+        </div>
+        <div class="flex items-center gap-x-3">
+          <input type="radio" name="radio-2" class="radio radio-primary" id="female"/>
+          <label for="female">Perempuan</label>
+        </div>
+      </div>
+    </div>
+    <div class="relative text-base-content p-6">
+      <h1 class="text-2xl mb-4 font-bold">Untuk Memulai Pemeriksaan Pasien</h1>
+      <div class="text-md text-primary">Mohon isikan nama, tanggal lahir dan jenis kelamin terlebih dahulu</div>
+      <div class="text-md">Setelah itu tekan tombol Mulai dibawah ini</div>
+      <div class="text-right">
+        <ion-button fill="clear" class="btn btn-primary w-1/2 mt-4 text-white">Mulai</ion-button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,157 @@
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Dashboard</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container" class="grid grid-cols-1 gap-4 bg-base-200">
+    <div class="drawer lg:drawer-open">
+      <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content flex flex-col items-center justify-start">
+        <div class="px-8 w-full">
+          <div
+            class="w-full bg-base-100 flex items-center justify-between p-6 rounded-b-2xl"
+          >
+            <div class="space-x-3 flex items-center">
+              <label
+                for="my-drawer-2"
+                class="btn btn-primary btn-sm drawer-button lg:hidden"
+              >
+                <ion-icon class="text-2xl" name="menu-outline"></ion-icon>
+              </label>
+              <h2 class="text-xl text-base-content">Home</h2>
+            </div>
+            <div class="dropdown dropdown-end">
+              <div
+                tabindex="0"
+                role="button"
+                class="w-12 h-12 bg-primary rounded-full relative overflow-hidden"
+              >
+                <img
+                  src="assets/image/profile.png"
+                  class="w-full h-full object-cover object-center"
+                  alt="Developer"
+                />
+              </div>
+              <ul
+                tabindex="0"
+                class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li><a>Profil</a></li>
+                <li><a>Logout</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3 mt-8">
+            <div class="col-span-2 bg-base-100 rounded-2xl relative">
+              <div class="p-10 flex justify-between">
+                <div>
+                  <h1 class="text-base-content font-bold text-2xl">
+                    Wellcome Back Admin
+                  </h1>
+                </div>
+              </div>
+              <img src="/assets/image/wellcome.png" alt="image" />
+            </div>
+            <div class="bg-base-100 rounded-2xl relative">
+              <img
+                class="absolute bottom-0 right-0"
+                src="/assets/image/setup.png"
+                alt="image"
+              />
+              <div class="absolute top-0 left-0 p-5 pr-12">
+                <h1 class="text-base-content font-bold text-3xl">
+                  Setup New Announcement
+                </h1>
+                <p class="text-base-content">
+                  Create new announcement for all users
+                </p>
+              </div>
+              <div class="absolute bottom-0 left-0 p-5">
+                <button class="btn sm:btn-sm lg:btn-md btn-primary text-white">
+                  Create New
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="w-full mt-5 mb-8 bg-base-100 rounded-2xl">
+            <img src="../../../assets/image/Time Series Data.png" alt="tabel" />
+          </div>
+        </div>
+      </div>
+      <div class="drawer-side">
+        <label
+          for="my-drawer-2"
+          aria-label="close sidebar"
+          class="drawer-overlay"
+        ></label>
+        <ul
+          class="menu p-4 w-80 min-h-full bg-base-100 text-base-content space-y-3"
+        >
+          <div class="icon-logo w-10">
+            <img src="assets/image/button.png" alt="Gesto-logo" />
+          </div>
+          <div class="icon-logo w-20 m">
+            <img src="assets/image/Gesto.png" alt="Gesto-logo" />
+          </div>
+          <!-- Sidebar content here -->
+          <li>
+            <a class="bg-base-300 font-bold shadow" href="/dashboard"
+              ><ion-icon class="text-2xl mr-2" name="home-outline"></ion-icon>
+              Home</a
+            >
+          </li>
+          <li>
+            <a href="/communities"
+              ><ion-icon class="text-2xl mr-2" name="people-outline"></ion-icon>
+              Communities</a
+            >
+          </li>
+          <li>
+            <a href="/users"
+              ><ion-icon class="text-2xl mr-2" name="person-outline"></ion-icon>
+              Users</a
+            >
+          </li>
+          <li>
+            <a onclick="setting_modal.showModal()">
+              <ion-icon
+                class="text-2xl mr-2"
+                name="settings-outline"
+              ></ion-icon>
+              Settings
+            </a>
+          </li>
+        </ul>
+        <dialog id="setting_modal" class="modal">
+          <div class="modal-box text-base-content">
+            <h3 class="font-bold text-lg">Setting</h3>
+            <p class="py-4 text-sm">
+              Press ESC key or click the button below to close
+            </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-x-3">
+                <ion-icon size="large" name="contrast-outline"></ion-icon>
+                <span>Theme View</span>
+              </div>
+              <div>
+                <ion-button
+                  (click)="changeTheme($event)"
+                  fill="clear"
+                  class="btn btn-outline btn-primary"
+                  >{{ theme }}</ion-button
+                >
+              </div>
+            </div>
+            <div class="modal-action">
+              <form method="dialog">
+                <button class="btn">Close</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </div>
+</ion-content>
