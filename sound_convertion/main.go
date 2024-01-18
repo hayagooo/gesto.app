@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -170,15 +171,29 @@ func readWavFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Filename is required", http.StatusBadRequest)
 		return
 	}
-	wavFilePath := "audio/" + filename
+	wavFilePath := filepath.Join("audio", filename)
 	downloadFile(app, "gesto-d6223.appspot.com", wavFilePath)
-	hexData, err := convertWavToHex(wavFilePath)
+	// hexData, err := convertWavToHex(wavFilePath)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
+	data, err := os.ReadFile(wavFilePath)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Error reading file: %v", err), http.StatusInternalServerError)
 		return
 	}
+	sampleData := "{\n"
+	for i, b := range data {
+		sampleData += fmt.Sprintf("0x%02X, ", b)
+		if (i+1)%12 == 0 {
+			sampleData += "\n"
+		}
+	}
+	sampleData += "};"
 	jsonResponse := map[string]string{
-		"hex": hexData,
+		// "hex":   hexData,
+		"audio": sampleData,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(jsonResponse)
